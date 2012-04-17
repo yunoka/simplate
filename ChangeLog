@@ -1,0 +1,123 @@
+2009-10-17 FUJIOKA Satoshi <simpalte @ gmail.com> Version:0.4.2
+	* 保守性向上のためコメント記載
+	* php5.3 以上に対応 ZVAL_xxx を Z_xxx に変更し互換を保つためにマクロ定義
+	* fix #15205 コメント直後の if 文が正しくパースされないバグを修正
+	* fix #19139 Windows 版でも compile_dir の作成を再帰的に作成するようにした。
+
+2008-04-07 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.4.0
+	* if文中のparseに関数を使えるように、parserの書き換え。
+
+2007-10-03 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.8
+	* force_compileがfalseでinclude file="$var"の処理が漏れていたため、対応した。
+	* 今回からtestsを有効利用するようにしたが、Makefileでextension_dirを指定してphpを実行するため、他のextensionを利用していると、失敗してしまう。
+	 - test:のところに-Uの前辺りに、-nを追加して、make testすれば、通常通りにテストできる。
+
+2007-09-21 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.7
+	* compile_dirの作成を再帰的に作成するようにした。
+
+2007-06-19 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.6
+	* sectionのfirst,lastのサポート
+
+2007-06-18 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.5
+	* revuloさんによるパッチの追加
+	  - compile_checkの実装を追加。
+	  - デリミタを{}にしたときの{php}タグの挙動の不具合修正。
+	* \0を含んだ文字をassignしたときの不具合修正。
+
+2007-05-14 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.4
+	* simplateオブジェクトを継承したメソッドをテンプレート内で使えるように、$thisをテンプレート内で記述できるようにした。
+
+2007-02-05 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.3
+	* include file="$var.tpl"の形式もサポート
+	* force compileの不具合修正
+
+2007-01-19 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.2
+	* 64ビット環境でも動くように修正。
+
+2006-10-30 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.3.1
+	* register_{pre,post}filterの実装。とりあえず、unregister_{pre,post}filterは、実装しない。
+
+2006-10-26 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.9
+	* xmlタグを複数行(XSLTなど)書けるようにした。
+
+2006-07-08 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.8
+	* <?xml encoding="<{$encoding}>" ?>のような書き方ができないバグの修正。
+	* foreach文をサポート
+	* デリミタを{,}と設定できないバグ(どこかのバージョンでデグレードしていたようです。)
+
+2006-03-09 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.7
+	* Windows版でも使えるように修正(静的キャッシュ機能は使えない)
+	* 変数内で関数も使えるように修正。<{htmlspecialchars($var)}>や<{user_function($var)}>のような自作関数も使えます。
+	* 静的キャッシュ機能でfetchしたときの不具合一部修正。
+
+2006-02-05 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.6
+	* 清水さんのpatchにより、幾つかの修正。
+	  - windows版でもコンパイルできるようにTSRMLSの修正。
+	  - 幾つかののメモリリークの修正。
+
+2006-02-04 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.5
+	* デグレードして、PHP4でコンパイルができなくなっていたので、その修正を行う。
+	* zend_read_property後、型のチェックをするようにした。
+
+2006-01-22 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.4
+	* オブジェクト変数が使えるようにparse部分修正
+
+2005-12-29 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.3
+	* PHP-5.1.1におけるzend extension(Xdebug)との相性問題解決
+
+2005-12-27 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.2
+	* キャッシュの実装
+
+2005-12-17 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.1
+	* php.ini内で設定したopen_basedirの設定をチェックするように修正。(/etc/passwdのようなincludeをさせないため)
+	* コンパイル済みのチェック時にincludeしたファイルを全てチェックしているが、それを行うと、fstatの部分が遅いようなので、includeのファイル数が多いと、force_compileしている方が高速になってしまうため、表示するファイルのみのタイムスタンプをチェックする方式も利用できるようにlazy_check変数を導入する。
+
+2005-12-01 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.2.0
+	* 0から書き直してみて、ロジックの整理。
+	* CLIでの使用時にでていたSegmentation faultの修正。
+	* <{$tag_name+1}>のような形式が表示できなかったバグ修正。
+
+2005-11-02 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.1.3
+	* section以外でも連想配列形式($people.phone.mobile)の書式をサポート
+
+2005-10-05 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.1.2
+	* simplateクラスにバージョン情報も与えた。さらに、グローバルのオブジェクトを安全に使えるようにマクロを使ってアクセスするようにした。
+
+2005-09-14 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.1.1
+	* xmlテンプレートを使えるようにした。
+
+2005-08-31 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.1.0
+	* util.ccのget_element部分の書き換え。今までは、key="value"しかサポートしていなかった。key = "value"とかも取れるようにした。
+
+2005-08-27 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.10
+	* エラーのクリアし忘れているバグの修正
+	* section内で使える新しい記法の追加($entry[index].key)
+
+2005-08-15 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.9
+	* 多次元配列をassignできるようにした(php4)
+	* assignメソッドのコードを整理。
+	* 初期化関数の整理。
+	* fetchのバッファリングをphp4/5で共通化
+
+2005-08-13 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.8
+	* DOUBLE,LONG型の変数がassignできなくなるバグが入り込んでしまったため、その修正。(php5のみ)
+
+2005-08-12 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.6,0.0.7
+	* literal,elseifのサポート、delimiterが変更できないバグの修正
+	* 多次元配列をassignできるようにした(php5のみ)
+
+2005-08-09 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.5
+	* simplate内部変数を使えるようにした
+
+2005-08-07 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.4
+	* fetchを追加
+
+2005-08-04 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.3
+	* lib_smartyでコンパイルエラーが発生しているようなので、util.{cc,h}でusing std::string;するように修正
+
+2005-08-03 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.2
+	* php4でも使えるように更新。
+
+2005-08-01 Kazuhiro IIzuka <simplate @ gmail.com> Version:0.0.1
+	* Simplate公開
+
