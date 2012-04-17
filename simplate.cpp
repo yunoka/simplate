@@ -150,7 +150,7 @@ static int le_simplate;
 #define COMPILE_CHECK "compile_check"
 #define FORCE_COMPILE "force_compile"
 #define LAZY_CHECK "lazy_check"
-#define VERSION "0.4.2"
+#define VERSION "0.4.2.y_1"
 #define CACHE_LIFETIME "cache_lifetime"
 #define CACHING "caching"
 
@@ -291,11 +291,15 @@ static string get_include_filename(
         // use variable
         string include_variable = "";
 
-        // From "$" to "." string is cut out.
+        // From "$" to "." or "/" string is cut out.
         //   $variable => $variable
         //   $variable.tpl => $variable
         include_variable = filename.substr(pos);
-        size_t dot_pos = include_variable.find(".");
+        size_t dot_pos  = include_variable.find(".");
+        size_t dot_pos2 = include_variable.find("/");
+        if (dot_pos > dot_pos2 || (dot_pos == string::npos && dot_pos2 != string::npos )){
+        	dot_pos = dot_pos2;
+        }
         if (dot_pos != string::npos) {
             include_variable = include_variable.substr(0, dot_pos);
         }
@@ -1533,6 +1537,38 @@ DEBUG_PRINTF("new_section_loop2 = (%s)", new_section_loop2.c_str());
                     string filename = get_element(item.c_str(), "file");
                     string included_filename = get_include_filename(obj, template_dir, filename TSRMLS_CC);
                     new_condition = _readfile(included_filename.c_str() TSRMLS_CC);
+
+			        zval *plugins = zend_read_property(Z_OBJCE_P(obj), obj, const_cast<char*>("_plugins"), strlen("_plugins"), 1 TSRMLS_CC);
+			        if (plugins && Z_TYPE_P(plugins) == IS_ARRAY) {
+			            zval **prefilter;
+			            if (zend_hash_find(Z_ARRVAL_P(plugins), "prefilter", sizeof("prefilter"), (void**)&prefilter) == SUCCESS
+			                && Z_TYPE_PP(prefilter) == IS_ARRAY
+			            ) {
+			                zval **elem;
+			                zend_hash_internal_pointer_reset(Z_ARRVAL_PP(prefilter));
+			                while (zend_hash_get_current_data(Z_ARRVAL_PP(prefilter), (void**)&elem) == SUCCESS) {
+			                    zval prefilter_function, prefilter_ret;
+			                    zval zcontent;
+			                    zval *prefilter_argv[1];
+			                    prefilter_argv[0] = &zcontent;
+			                    SET_ZVAL_STRING(zcontent, new_condition.c_str());
+
+			                    INIT_ZVAL(prefilter_function);
+			                    ZVAL_STRING(&prefilter_function, Z_STRVAL_PP(elem), 1);
+
+			                    if (call_user_function(EG(function_table), NULL, &prefilter_function, &prefilter_ret, 1, prefilter_argv TSRMLS_CC) == FAILURE) {
+			                        zval_dtor(&zcontent);
+			                        zend_error(E_ERROR, "fail to %s", Z_STRVAL_PP(elem));
+			                        return;
+			                    }
+			                    zval_dtor(&prefilter_function);
+			                    zval_dtor(&zcontent);
+			                    new_condition = Z_STRVAL(prefilter_ret);
+			                    zval_dtor(&prefilter_ret);
+			                    zend_hash_move_forward(Z_ARRVAL_PP(prefilter));
+			                }
+			            }
+        }
                     if (new_condition.find(filename) != string::npos) {
                         zend_error(E_ERROR, "Found recursive include:%s", filename.c_str());
                         return;
